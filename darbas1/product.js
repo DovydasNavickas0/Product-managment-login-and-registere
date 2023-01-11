@@ -144,8 +144,6 @@ function selectData(evt){
                     rowproduct.appendChild(colimage);
                     Findtable.appendChild(rowproduct)
                     }
-
-                    break
                 }
             }else{
                 alert("Data not found")

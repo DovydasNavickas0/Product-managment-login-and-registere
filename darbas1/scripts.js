@@ -30,7 +30,7 @@ const UserRegistration = () => {
 				last_login: `${loginTime}`
             });
 
-            console.log(user, "User Created")
+            console.log(user, "User Created");
         })
         .catch((error) => {
             const errorCode = error.code;
@@ -52,25 +52,14 @@ const UserLogIn = () => {
     update(ref(db, 'users/' + user.uid), {
         lasr_login: loginTime
     });
-    console.log(user, "Login Successfull")
+    console.log(user, "Login Successfull");
     })
     .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
-        console.log(error.message)
+        console.log(error.message);
     });
 
-}
-
-const UserLogout = () => {
-    signOut(auth).then(() => {
-        console.log("Logout successful");
-    })
-    .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log(error.message)
-    })
 }
 
 onAuthStateChanged(auth, (user) => {
@@ -78,12 +67,17 @@ onAuthStateChanged(auth, (user) => {
         // User is signed in, see docs for a list of available properties
         // https://firebase.google.com/docs/reference/js/firebase.User
         const uid = user.uid;
-        console.log("User is active")
-      } else {
-        console.log("User is inactive")
+        console.log("User is active");
+      }
+      else {
+        console.log("User is inactive");
       }
     
 })
 
 document.getElementById("signup").addEventListener("click", UserRegistration);
 document.getElementById('login').addEventListener("click", UserLogIn);
+
+// window.location.replace("./product.html") is the thing that is causing the problem of the user's data not being created in "Realtime Database"
+// also putting a delay doesn't work
+// P.S database isn't being triggered
