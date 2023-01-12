@@ -52,8 +52,8 @@ function insertDataIntoDB(evt){
     console.log(enterID.value, enterName.value, enterQuantity.value, 
         enterPrice.value, enterDescription.value, enterImg.value);
 
-    set(ref(db, "Products/" + enterID.value), {
-        Name: enterName.value,
+    set(ref(db, "Products/" + enterID.value), { // add user email or username
+        Name: enterName.value,                  // to keep track of the post
         ID: enterID.value,
         Quantity: enterQuantity.value,
         Price: enterPrice.value,
@@ -69,8 +69,8 @@ function insertDataIntoDB(evt){
 }
 
 
-function selectData(evt){
-    evt.preventDefault();
+function selectData(evt){ // replace this with something that will keep track of
+    evt.preventDefault(); // a accounts postings(everyone has diffrent posts)
         if(findID.value.length < 3){
         alert("ID too short");
         return}
@@ -143,6 +143,8 @@ function selectData(evt){
                     rowproduct.appendChild(ColDesc);
                     rowproduct.appendChild(colimage);
                     Findtable.appendChild(rowproduct)
+
+                    break
                     }
                 }
             }else{
@@ -187,7 +189,7 @@ function updateData(evt){
         Quantity: enterQuantity.value,
         Price: enterPrice.value,
         Description: enterDescription.value,
-        ImgLink: enterImg.value 
+        ImgLink: enterImg.value,
     })
         .then(() => {
             alert("Data update is successfull")
@@ -242,6 +244,7 @@ deletebtn.addEventListener("click", deleteData);
 //new code
 //-----------------------------------------------------
 
+//Login checker
 onAuthStateChanged(auth, (user) => {
     if (user) {
         // User is signed in, see docs for a list of available properties
@@ -252,7 +255,6 @@ onAuthStateChanged(auth, (user) => {
         console.log("User is inactive")
         window.location.replace("./index.html");
       }
-    
 })
 
 const UserLogout = () => {

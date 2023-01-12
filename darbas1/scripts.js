@@ -3,15 +3,11 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebas
 import { getAuth, createUserWithEmailAndPassword, 
     signInWithEmailAndPassword,  onAuthStateChanged,
     signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-import {getDatabase, ref, get, set, child, update, remove} from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+import {getDatabase, ref, get, set, child, update, remove, push} from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
 const db = getDatabase();
-
-const SignUpBtn = document.getElementById("signup");
-const LogInBtn = document.getElementById('login');
-const LogoutBtn = document.getElementById('logout');
 
 const UserRegistration = () => {
 
@@ -20,7 +16,7 @@ const UserRegistration = () => {
     const Passwd = document.getElementById("passwd-signup").value;
     
     createUserWithEmailAndPassword(auth, Email, Passwd)
-        .then((userCredential) => {
+        .then((userCredential)  => {
             const user = userCredential.user;
 
             const loginTime = new Date()
@@ -28,7 +24,7 @@ const UserRegistration = () => {
                 user_email: Email,
                 user_username: Username,
 				last_login: `${loginTime}`
-            });
+            })
 
             console.log(user, "User Created");
         })
@@ -41,8 +37,9 @@ const UserRegistration = () => {
 
 const UserLogIn = () => {
 
-    const Email = document.getElementById("email-login").value;
-    const Passwd = document.getElementById("passwd-login").value;
+    const Username = document.getElementById('username').value
+    const Email = document.getElementById("email-signup").value;
+    const Passwd = document.getElementById("passwd-signup").value;
 
     const auth = getAuth();
     signInWithEmailAndPassword(auth, Email, Passwd)
@@ -50,7 +47,7 @@ const UserLogIn = () => {
     const user = userCredential.user;
     const loginTime = new Date()
     update(ref(db, 'users/' + user.uid), {
-        lasr_login: loginTime
+        last_login: loginTime
     });
     console.log(user, "Login Successfull");
     })
@@ -62,22 +59,38 @@ const UserLogIn = () => {
 
 }
 
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        // User is signed in, see docs for a list of available properties
-        // https://firebase.google.com/docs/reference/js/firebase.User
-        const uid = user.uid;
-        console.log("User is active");
-      }
-      else {
-        console.log("User is inactive");
-      }
-    
-})
+//Login checker
+const StatusMonitor = async () => {
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            const uid = user.uid;
+            console.log("User is active");
+          }
+          else {
+            console.log("User is inactive");
+          }
+        
+    })
+}
+
 
 document.getElementById("signup").addEventListener("click", UserRegistration);
 document.getElementById('login').addEventListener("click", UserLogIn);
+StatusMonitor()
+
 
 // window.location.replace("./product.html") is the thing that is causing the problem of the user's data not being created in "Realtime Database"
-// also putting a delay doesn't work
+// 500-700 ms delay works (based of latency)
 // P.S database isn't being triggered
+// also also Login doesn't get logged 
+
+// Writing to the database is asynchronous operation so it can take some time
+// tl:dr works at it's own pace
+// so I have to write a function that waits on the database to get updated
+// and only then does it use the windows.location command.
+
+//https://stackoverflow.com/questions/70725838/firebase-realtime-database-not-saving-data-when-i-add-location-replace
+
+//setTimeout(() => {StatusMonitor()}, 600)
+//.then(setTimeout(() => {window.location.replace("./product.html")}, 50))
