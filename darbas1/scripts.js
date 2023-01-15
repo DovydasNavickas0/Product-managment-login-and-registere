@@ -18,7 +18,6 @@ const UserRegistration = () => {
     createUserWithEmailAndPassword(auth, Email, Passwd)
         .then((userCredential)  => {
             const user = userCredential.user;
-
             const loginTime = new Date()
             set(ref(db, 'users/' + user.uid),{
                 user_email: Email,
@@ -31,7 +30,7 @@ const UserRegistration = () => {
         .catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
-            console.log(error.message)
+            console.log(error.code + error.message)
         });
 }
 
@@ -43,13 +42,14 @@ const UserLogIn = () => {
 
     const auth = getAuth();
     signInWithEmailAndPassword(auth, Email, Passwd)
-    .then((userCredential) => {
-    const user = userCredential.user;
-    const loginTime = new Date()
-    update(ref(db, 'users/' + user.uid), {
-        last_login: loginTime
-    });
-    console.log(user, "Login Successfull");
+        .then((userCredential) => {
+            const user = userCredential.user;
+            const loginTime = new Date()
+            update(ref(db, 'users/' + user.uid), {
+                last_login: loginTime
+            });
+
+        console.log(user, "Login Successfull");
     })
     .catch((error) => {
         const errorCode = error.code;
@@ -60,24 +60,24 @@ const UserLogIn = () => {
 }
 
 //Login checker
-const StatusMonitor = async () => {
-
+setTimeout(() => {
     onAuthStateChanged(auth, (user) => {
         if (user) {
             const uid = user.uid;
             console.log("User is active");
+            window.location.replace("./product.html")
           }
           else {
             console.log("User is inactive");
           }
         
     })
-}
+}, 600)
 
 
 document.getElementById("signup").addEventListener("click", UserRegistration);
 document.getElementById('login').addEventListener("click", UserLogIn);
-StatusMonitor()
+
 
 
 // window.location.replace("./product.html") is the thing that is causing the problem of the user's data not being created in "Realtime Database"
@@ -94,3 +94,7 @@ StatusMonitor()
 
 //setTimeout(() => {StatusMonitor()}, 600)
 //.then(setTimeout(() => {window.location.replace("./product.html")}, 50))
+
+//Need to learn cloud firestore. Specificly cloud functions
+
+//John and Beth passwords are 123456

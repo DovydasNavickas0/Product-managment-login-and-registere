@@ -18,12 +18,13 @@ const insertbtn = document.getElementById("insert");
 const updaterbtn = document.getElementById("update");
 const deletebtn = document.getElementById("remove");
 
-const findID = document.getElementById("findID");
-const findbtn = document.getElementById("find");
 const findData = document.getElementById("findData");
 
 function insertDataIntoDB(evt){
     evt.preventDefault();
+
+    const user = auth.currentUser
+
     if( enterID.value.length < 3){
         alert("ID too short");
         return
@@ -52,7 +53,7 @@ function insertDataIntoDB(evt){
     console.log(enterID.value, enterName.value, enterQuantity.value, 
         enterPrice.value, enterDescription.value, enterImg.value);
 
-    set(ref(db, "Products/" + enterID.value), { // add user email or username
+    update(ref(db, 'users/' + user.uid + "/Products/" + enterID.value), { // add user email or username
         Name: enterName.value,                  // to keep track of the post
         ID: enterID.value,
         Quantity: enterQuantity.value,
@@ -68,13 +69,11 @@ function insertDataIntoDB(evt){
         })
 }
 
+setTimeout(() => {
+    (function selectData(){ // replace this with something that will keep track of
+                       // a accounts postings(everyone has diffrent posts)
 
-function selectData(evt){ // replace this with something that will keep track of
-    evt.preventDefault(); // a accounts postings(everyone has diffrent posts)
-        if(findID.value.length < 3){
-        alert("ID too short");
-        return}
-    //console.log(findID.value);
+    const user = auth.currentUser
 
     const Findtable = document.createElement('table');
     const rowheader = document.createElement('tr');
@@ -83,6 +82,10 @@ function selectData(evt){ // replace this with something that will keep track of
     const listName = document.createElement('th');
     listName.innerText = "Name";
     listName.style.border = "thin solid #000000";
+
+    const listQuantity = document.createElement('th');
+    listQuantity.innerText = "Quantity";
+    listQuantity.style.border = "thin solid #000000";
 
     const listPrice = document.createElement('th');
     listPrice.innerText = "Price";
@@ -98,67 +101,72 @@ function selectData(evt){ // replace this with something that will keep track of
 
     Findtable.appendChild(rowheader);
     rowheader.appendChild(listName);
+    rowheader.appendChild(listQuantity);
     rowheader.appendChild(listPrice);
     rowheader.appendChild(listDescription);
     rowheader.appendChild(listImg);
     findData.appendChild(Findtable);
 
-    get(ref(db, "Products/", findID.value))
+    get(ref(db, 'users/' + user.uid + "/Products/"))
         .then((snapshot) => {
-            if(snapshot.exists()) {
+
                 //console.log(snapshot.val())
-                for(let ID in snapshot.val()){
-                    //console.log(snapshot.val());
-                    //console.log(snapshot.val()[4534]);
-                    //console.log(filter(snapshot.val()[ID].ID === findID));
-                    //console.log(snapshot.val()[ID].Quantity);
-                    //console.log(snapshot.val()[findID.value].Description)
-                    let times = snapshot.val()[findID.value].Quantity
+                //console.log(snapshot.val());
+                //console.log(snapshot.val()[4534]);
+                //console.log(filter(snapshot.val()[ID].ID === findID));
+                //console.log(snapshot.val()[ID].Quantity);
+                //console.log(snapshot.val()[findID.value].Description)
 
-                    for(let i = 0; i < times; i++){
-                    const rowproduct = document.createElement('tr');
-                    rowproduct.style.border = "medium solid #000000";
+            for(let ID in snapshot.val()){
 
-                    const colname = document.createElement('td')
-                    colname.textContent = snapshot.val()[findID.value].Name
-                    colname.style.border = "thin solid #000000";
+                //console.log(ID)
+                //console.log(snapshot.val()[ID]);
 
-                    const colprice = document.createElement('td')
-                    colprice.textContent = snapshot.val()[findID.value].Price
-                    colprice.style.border = "thin solid #000000";
+                const rowproduct = document.createElement('tr');
+                rowproduct.style.border = "medium solid #000000";
 
-                    const ColDesc = document.createElement('td')
-                    ColDesc.textContent = snapshot.val()[findID.value].Description
-                    ColDesc.style.border = "thin solid #000000";
+                const colname = document.createElement('td')
+                colname.textContent = snapshot.val()[ID].Name
+                colname.style.border = "thin solid #000000";
 
-                    const colimage = document.createElement('td')
-                    const imgsrc = document.createElement('img')
-                    imgsrc.src = snapshot.val()[findID.value].ImgLink
-                    imgsrc.classList.add("form-control")
-                    colimage.style.border = "thin solid #000000";
+                const colquantity = document.createElement('td')
+                colquantity.textContent = snapshot.val()[ID].Quantity
+                colquantity.style.border = "thin solid #000000";
 
-                    colimage.appendChild(imgsrc)
-                    rowproduct.appendChild(colname);
-                    rowproduct.appendChild(colprice);
-                    rowproduct.appendChild(ColDesc);
-                    rowproduct.appendChild(colimage);
-                    Findtable.appendChild(rowproduct)
+                const colprice = document.createElement('td')
+                colprice.textContent = snapshot.val()[ID].Price
+                colprice.style.border = "thin solid #000000";
 
-                    break
-                    }
+                const ColDesc = document.createElement('td')
+                ColDesc.textContent = snapshot.val()[ID].Description
+                ColDesc.style.border = "thin solid #000000";
+
+                const colimage = document.createElement('td')
+                const imgsrc = document.createElement('img')
+                imgsrc.src = snapshot.val()[ID].ImgLink
+                imgsrc.classList.add("form-control")
+                colimage.style.border = "thin solid #000000";
+
+                colimage.appendChild(imgsrc)
+                rowproduct.appendChild(colname);
+                rowproduct.appendChild(colquantity)
+                rowproduct.appendChild(colprice);
+                rowproduct.appendChild(ColDesc);
+                rowproduct.appendChild(colimage);
+                Findtable.appendChild(rowproduct)
                 }
-            }else{
-                alert("Data not found")
-            }
         })
         .catch((error) => {
             alert(error)
         })
-}
+})()}, 600)
 
 
 function updateData(evt){
     evt.preventDefault()
+
+    const user = auth.currentUser
+
     if( enterID.value.length < 3){
         alert("ID too short");
         return
@@ -184,7 +192,7 @@ function updateData(evt){
         return
     }
     console.log(enterID.value, enterName.value, enterQuantity.value);
-    update(ref(db, "Products/" + enterID.value), {
+    update(ref(db, 'users/' + user.uid + "/Products/" + enterID.value), {
         Name: enterName.value,
         Quantity: enterQuantity.value,
         Price: enterPrice.value,
@@ -201,6 +209,9 @@ function updateData(evt){
 
 function deleteData(evt){
     evt.preventDefault()
+
+    const user = auth.currentUser
+
     if( enterID.value.length < 3){
         alert("ID too short");
         return
@@ -226,7 +237,7 @@ function deleteData(evt){
         return
     }
     console.log(enterID.value, enterName.value, enterQuantity.value)
-    remove(ref(db, "Products/" + enterID.value))
+    remove(ref(db, 'users/' + user.uid + "/Products/" + enterID.value))
         .then(() => {
             alert("Data has been successfully deleted");
         })
@@ -236,26 +247,28 @@ function deleteData(evt){
 }
 
 insertbtn.addEventListener("click", insertDataIntoDB);
-findbtn.addEventListener("click", selectData);
 updaterbtn.addEventListener("click", updateData);
 deletebtn.addEventListener("click", deleteData);
+
+
 
 //-----------------------------------------------------
 //new code
 //-----------------------------------------------------
 
-//Login checker
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        // User is signed in, see docs for a list of available properties
-        // https://firebase.google.com/docs/reference/js/firebase.User
-        const uid = user.uid;
-        console.log("User is active")
-      } else {
-        console.log("User is inactive")
-        window.location.replace("./index.html");
-      }
-})
+setTimeout(() => {
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            // User is signed in, see docs for a list of available properties
+            // https://firebase.google.com/docs/reference/js/firebase.User
+            const uid = user.uid;
+            console.log("User is active")
+          } else {
+            console.log("User is inactive")
+            window.location.replace("./index.html")
+          }
+    })
+}, 100)
 
 const UserLogout = () => {
     signOut(auth).then(() => {
